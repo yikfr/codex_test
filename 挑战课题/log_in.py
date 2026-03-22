@@ -61,18 +61,8 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
-
-
-def load_users():
-    if not os.path.exists("users.json"):
-        return {}
-    with open("users.json", "r") as f:
-        return json.load(f)
-
-
-def save_users(users):
-    if "users" not in st.session_state:
-        st.session_state.users = {}
+if "users" not in st.session_state:
+    st.session_state.users = {}
 
 
 def login_page():
@@ -86,9 +76,9 @@ def login_page():
     st.markdown("<br>", unsafe_allow_html=True)
 
     tab1, tab2 = st.tabs(["登录", "注册"])
-
-    users = load_users()
-
+    
+    users = st.session_state.users
+    
     with tab1:
         username = st.text_input("用户名")
         password = st.text_input("密码", type="password")
@@ -123,7 +113,6 @@ def login_page():
                 st.error("用户已存在")
             else:
                 users[new_user] = new_pass
-                save_users(users)
                 st.success("注册成功")
 
 
