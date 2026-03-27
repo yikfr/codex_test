@@ -37,6 +37,7 @@ if user_input:
         full_response = ""
 
         response = ask_deepseek(user_input, st.session_state.messages)
+        st.markdown(response, unsafe_allow_html=True)
 
         for char in response:
             full_response += char
