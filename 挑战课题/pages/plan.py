@@ -7,7 +7,7 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("请先登录")
     st.switch_page("log_in.py")
 
-st.title("📅 AI学习计划生成")log_in
+st.title("📅 AI学习计划生成")
 
 st.markdown("### 🎯 定制你的专属学习计划")
 
