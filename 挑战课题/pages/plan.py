@@ -27,7 +27,10 @@ with col1:
 with col2:
     style = st.selectbox("学习强度", ["轻松", "标准", "高强度"])
 
-daily_time = st.slider("学习周期（天）", 3, 30, 7)
+daily_time = st.text_input(
+    "每天学习时间",
+    placeholder="例如：每天2小时"
+)
 
 if st.button("🚀 生成学习计划"):
 
