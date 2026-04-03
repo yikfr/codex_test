@@ -1,5 +1,5 @@
 import streamlit as st
-from test import create_exercise_generator, generate_questions, check_user_answer
+from deepseek_fb2 import create_exercise_generator, generate_questions, check_user_answer
 
 st.set_page_config(page_title="习题生成", page_icon="✍️")
 
