@@ -4,6 +4,7 @@ from deepseek_fb2 import create_exercise_generator, generate_questions, check_us
 
 st.set_page_config(page_title="习题生成", page_icon="✍️")
 
+render_sidebar()
 
 def save_record_silently(username, action_type, details):
     try:
