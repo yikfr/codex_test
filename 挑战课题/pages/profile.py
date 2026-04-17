@@ -38,7 +38,7 @@ def update_profile(display_name, bio):
 user_info = fetch_user_info()
 
 st.markdown(f"""
-<div style="padding: 20px; border-radius: 10px; background-color: #f0f2f6;">
+<div style="padding: 20px; border-radius: 10px; background-color: e6e6fa;">
     <h1>{user_info['display_name']}</h1>
     <p><i>"{user_info['bio']}"</i></p>
     <span style="background: gold; padding: 5px 10px; border-radius: 5px; font-weight: bold;">
