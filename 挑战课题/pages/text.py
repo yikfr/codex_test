@@ -55,7 +55,7 @@ type_map = {"选择题": "MULTIPLE_CHOICE", "填空题": "FILL_BLANK", "简答�
 
 if st.button("生成题目"):
     with st.spinner("正在呼叫AI生成题目..."):
-        generator = create_generator(os.getenv(DEEPSEEK_API_KEY))
+        generator = create_generator()
         raw_questions = generate_questions(
             generator,
             subject=subject,
