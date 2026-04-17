@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from enum import Enum
 import logging
 from openai import OpenAI
+import os
 
 
 logging.basicConfig(
