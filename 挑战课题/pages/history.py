@@ -1,5 +1,6 @@
 import streamlit as st
 import pymysql
+from utils import render_sidebar
 
 st.set_page_config(page_title="学习记录", page_icon="📊")
 
