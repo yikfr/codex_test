@@ -1,6 +1,7 @@
 import streamlit as st
 import pymysql
 from deepseek_fb3 import ask_deepseek
+from utils import render_sidebar
 
 st.set_page_config(page_title="学习计划", page_icon="📅")
 
