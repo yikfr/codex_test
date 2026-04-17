@@ -4,6 +4,7 @@ from deepseek_fb3 import ask_deepseek
 
 st.set_page_config(page_title="学习计划", page_icon="📅")
 
+render_sidebar()
 
 def save_record_silently(username, action_type, details):
     try:
