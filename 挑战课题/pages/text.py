@@ -1,8 +1,10 @@
 import streamlit as st
 import pymysql
 from deepseek_fb2 import create_generator,generate_questions,check_answer,get_detailed_explanation,calculate_accuracy
+from utils import render_sidebar
 st.set_page_config(page_title="习题生成", page_icon="✍️")
 
+render_sidebar()
 
 def save_record_silently(username, action_type, details):
     try:
