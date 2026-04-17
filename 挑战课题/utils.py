@@ -3,6 +3,7 @@ import streamlit as st
 
 def render_sidebar():
     with st.sidebar:
+        st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
         st.markdown("""
         <style>
         .avatar-container {
