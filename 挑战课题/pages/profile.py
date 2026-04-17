@@ -8,7 +8,7 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("请先登录")
     st.switch_page("log_in.py")
 
-render_sidebar(active_page="profile")
+render_sidebar()
 
 def get_user_stats(username):
     conn = pymysql.connect(
