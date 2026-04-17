@@ -375,7 +375,7 @@ class ExerciseGenerator:
 
 
 """---------------接口-------------------"""
-def create_generator(api_key: os.getenv(DEEPSEEK_API_KEY)) -> ExerciseGenerator:
+def create_generator(api_key: st.secrets[DEEPSEEK_API_KEY]) -> ExerciseGenerator:
     """
 
     参数:
