@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 from deepseek_fb3 import ask_deepseek
+from utils import render_sidebar
 
 st.set_page_config(page_title="AI聊天", page_icon="🤖")
 
