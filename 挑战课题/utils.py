@@ -31,6 +31,9 @@ def render_sidebar():
 
         st.markdown("---")
 
+        if st.button("🚹 AI助手", use_container_width=True):
+            st.switch_page("pages/chat.py")
+            
         if st.button("📅 学习规划", use_container_width=True):
             st.switch_page("pages/plan.py")
 
