@@ -1,7 +1,6 @@
 import streamlit as st
 import pymysql
 from deepseek_fb2 import create_generator,generate_questions,check_answer,get_detailed_explanation,calculate_accuracy
-from exam import create_exam_generator,generate_questions_api,generate_exam_paper_api,export_to_markdown_api,get_statistics_api
 st.set_page_config(page_title="习题生成", page_icon="✍️")
 
 
