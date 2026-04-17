@@ -35,7 +35,7 @@ def get_user_stats(username):
 plans_count, quizzes_count = get_user_stats(st.session_state.username)
 
 st.markdown(f"""
-<div style="background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%); 
+<div style="background: linear-gradient(90deg, #e6e6fa 0%, #d1e7ff 100%);
             padding: 30px; border-radius: 15px; color: white; text-align: center;">
     <h1 style="color: white; margin-bottom: 0px;">你好， {st.session_state.username}</h1>
     <p>好好学习，天天向上，董书予，加油！</p>
