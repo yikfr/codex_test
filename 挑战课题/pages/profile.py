@@ -2,7 +2,7 @@ import streamlit as st
 import pymysql
 from utils import render_sidebar
 
-st.set_config(page_title="个人中心", layout="wide")
+st.set_page_config(page_title="个人主页", page_icon="👤", layout="centered")
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.switch_page("log_in.py")
