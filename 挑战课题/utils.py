@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def render_sidebar():
+def render_sidebar(active_page="main"):
     with st.sidebar:
         st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
         st.markdown("""
