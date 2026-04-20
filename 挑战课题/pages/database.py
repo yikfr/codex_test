@@ -46,4 +46,13 @@ class DBManager:
                 cursor.execute(sql, (username,))
             conn.commit()
         finally:
+            conn.close(）
+    def upgrade_membership(self, username, new_level):
+        conn = self._get_conn()
+        try:
+            with conn.cursor() as cursor:
+                sql = "UPDATE users_test SET membership=%s WHERE username=%s"
+                cursor.execute(sql, (new_level, username))
+            conn.commit()
+        finally:
             conn.close()
