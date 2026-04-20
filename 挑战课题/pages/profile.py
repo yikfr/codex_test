@@ -76,21 +76,45 @@ with tab1:
             st.rerun()
 
 with tab2:
-    st.subheader("会员升级")
-    st.write(f"当前等级: **{current_membership.upper()}**")
-
-    new_tier = st.selectbox("选择要升级的会员等级", ["start", "go", "pro", "ultra"])
+    st.subheader("💎 升级你的会员权益")
     
-    if st.button("确认升级/变更"):
-        conn = get_db()
-        with conn.cursor() as cursor:
-            cursor.execute("UPDATE users_test SET membership=%s WHERE username=%s", 
-                           (new_tier, st.session_state.username))
-        conn.commit()
-        conn.close()
-        st.success(f"已成功变更为 {new_tier.upper()} 会员！")
-        st.balloons()
-        st.rerun()
+    tiers = {
+        "start": {"price": "¥0/月", "desc": "基础体验，畅享基础AI助手功能", "color": "#A0A0A0"},
+        "go": {"price": "¥19.9/月", "desc": "基础加速，更快的响应速度", "color": "#4b6cb7"},
+        "pro": {"price": "¥49.9/月", "desc": "全能模型，优先队列，超长上下文", "color": "#8e44ad"},
+        "ultra": {"price": "¥99.9/月", "desc": "极致尊享，定制模型，专属通道", "color": "#f1c40f"}
+    }
+
+    @st.dialog("扫码支付订阅")
+    def payment_dialog(tier, price):
+        st.write(f"您正在开通 **{tier.upper()} 会员**")
+        st.write(f"应付金额: :red[**{price}**]")
+        st.image("qr_code.png", width=200, caption="请使用微信/支付宝扫码")
+        
+        if st.button("我已支付"):
+            conn = get_db()
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE users_test SET membership=%s WHERE username=%s", 
+                               (tier, st.session_state.username))
+            conn.commit()
+            conn.close()
+            st.success("支付核验成功！")
+            st.balloons()
+            time.sleep(1)
+            st.rerun()
+
+    cols = st.columns(4)
+    for i, (tier, info) in enumerate(tiers.items()):
+        with cols[i]:
+            st.markdown(f"""
+            <div style="border: 2px solid {info['color']}; padding: 15px; border-radius: 10px; text-align: center; height: 250px;">
+                <h3 style="color: {info['color']};">{tier.upper()}</h3>
+                <p style="font-size: 20px; font-weight: bold;">{info['price']}</p>
+                <p style="font-size: 12px; color: #666;">{info['desc']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"开通 {tier.upper()}", key=f"btn_{tier}"):
+                payment_dialog(tier, info['price'])
 
 with tab3:
     st.write(f"登录账号: `{st.session_state.username}`")
