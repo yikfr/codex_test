@@ -5,7 +5,7 @@ from utils import render_sidebar
 
 st.set_page_config(page_title="学习计划", page_icon="📅")
 
-render_sidebar()
+render_sidebar(active_page="plan")
 
 def save_record_silently(username, action_type, details):
     try:
