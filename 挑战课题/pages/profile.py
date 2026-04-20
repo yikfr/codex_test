@@ -1,6 +1,7 @@
 import streamlit as st
 import pymysql
 from utils import render_sidebar
+import time
 
 st.set_page_config(page_title="个人主页", page_icon="👤", layout="centered")
 
