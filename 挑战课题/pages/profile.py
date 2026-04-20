@@ -7,7 +7,7 @@ st.set_page_config(page_title="个人主页", page_icon="👤", layout="centered
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.switch_page("log_in.py")
 
-render_sidebar()
+render_sidebar(active_page="chat")
 
 def get_db():
     return pymysql.connect(
