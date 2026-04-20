@@ -31,7 +31,7 @@ class DBManager:
                 sql = """
                 SELECT action_type, details 
                 FROM user_records 
-                WHERE username=%s AND action_type LIKE 'chat_%' 
+                WHERE username=%s AND action_type LIKE 'chat_%%' 
                 ORDER BY record_time ASC
                 """
                 cursor.execute(sql, (username,))
