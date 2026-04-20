@@ -2,17 +2,23 @@ import streamlit as st
 import time
 from deepseek_fb3 import ask_deepseek
 from utils import render_sidebar
+from database import DBManager
 
+db = DBManager() 
 st.set_page_config(page_title="AI聊天", page_icon="🤖")
 
-render_sidebar()
+render_sidebar(active_page="chat")
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("请先登录")
     st.switch_page("log_in.py")
 
 if "messages" not in st.session_state:
+    history = db.get_chat_history(st.session_state.username)
     st.session_state.messages = []
+    for row in history:
+        role = row['action_type'].replace('chat_', '')
+        st.session_state.messages.append({"role": role, "content": row['details']})
 
 st.title("🤖 AI学习助手")
 
@@ -22,30 +28,29 @@ for msg in st.session_state.messages:
 
 if st.button("🧹 清空对话"):
     st.session_state.messages = []
+    db.delete_chat_history(st.session_state.username) # 🌟 连数据库一起删
     st.rerun()
 
 user_input = st.chat_input("请输入你的问题...")
 
 if user_input:
-
+    db.save_chat_message(st.session_state.username, "user", user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     with st.chat_message("user"):
         st.markdown(user_input)
 
     with st.chat_message("assistant"):
-
         placeholder = st.empty()
-
         full_response = ""
-
-        response = ask_deepseek(user_input, st.session_state.messages)
+        response = ask_deepseek(user_input, st.session_state.messages[:-1])
 
         for char in response:
             full_response += char
             placeholder.markdown(full_response)
             time.sleep(0.02)
 
+    db.save_chat_message(st.session_state.username, "assistant", full_response)
     st.session_state.messages.append({
         "role": "assistant",
         "content": full_response
