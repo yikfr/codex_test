@@ -1,8 +1,13 @@
 import streamlit as st
 import pymysql
 from deepseek_fb2 import create_exercise_generator, generate_questions, check_user_answer
+from utils import render_sidebar
 
 st.set_page_config(page_title="习题生成", page_icon="✍️")
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.switch_page("log_in.py")
+
+render_sidebar(active_page="profile")
 
 def save_record_silently(username, action_type, details):
     try:
