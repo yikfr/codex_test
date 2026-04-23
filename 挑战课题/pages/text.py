@@ -1,10 +1,9 @@
 import streamlit as st
 import pymysql
-from deepseek_fb2 import create_generator,generate_questions,check_answer,get_detailed_explanation,calculate_accuracy
-from utils import render_sidebar
+from deepseek_fb2 import create_exercise_generator, generate_questions, check_user_answer
+
 st.set_page_config(page_title="习题生成", page_icon="✍️")
 
-render_sidebar(active_page="text")
 
 def save_record_silently(username, action_type, details):
     try:
@@ -47,21 +46,27 @@ st.title("✍️ 习题生成")
 
 subject = st.selectbox("科目", ["高数", "英语", "计算机"])
 difficulty = st.selectbox("难度", ["简单", "中等", "困难"])
-count = st.number_input("题目数量", min_value=1, max_value=20, value=2, step=1)
 question_type = st.selectbox("题型", ["选择题", "填空题", "简答题"])
-
+question_count = st.slider(
+    "题目数量",
+    min_value=1,
+    max_value=20,
+    value=1,
+    step=1,
+    help="选择要生成的题目数量（1-20题）"
+)
 diff_map = {"简单": "EASY", "中等": "MEDIUM", "困难": "HARD"}
 type_map = {"选择题": "MULTIPLE_CHOICE", "填空题": "FILL_BLANK", "简答题": "SHORT_ANSWER"}
 
 if st.button("生成题目"):
     with st.spinner("正在呼叫AI生成题目..."):
-        generator = create_generator()
+        generator = create_exercise_generator()
         raw_questions = generate_questions(
             generator,
             subject=subject,
             difficulty=diff_map[difficulty],
             question_type=type_map[question_type],
-            count=count
+            count=question_count
         )
 
         questions = []
@@ -103,7 +108,7 @@ if "questions" in st.session_state:
 
         for i, q in enumerate(st.session_state.questions):
             user_ans = st.session_state.get(f"ans_{i}", "")
-            is_correct = check_answer(q["raw_obj"], user_ans)
+            is_correct = check_user_answer(q["raw_obj"], user_ans)
 
             if is_correct:
                 st.success(f"第 {i + 1} 题：回答正确！✅")
