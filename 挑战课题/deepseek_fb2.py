@@ -1,10 +1,9 @@
 import json
+import os
 from typing import List, Dict, Any, Optional
 from enum import Enum
 import logging
 from openai import OpenAI
-import os
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,23 +12,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-
 class DifficultyLevel(Enum):
-
     EASY = "简单"
     MEDIUM = "中等"
     HARD = "困难"
 
 
 class QuestionType(Enum):
-
     MULTIPLE_CHOICE = "选择题"
     FILL_BLANK = "填空题"
     SHORT_ANSWER = "解答题"
 
 
 class Question:
-
     def __init__(self, content: str, answer: str, explanation: str,
                  options: Optional[List[str]] = None):
         self.content = content
@@ -38,7 +33,6 @@ class Question:
         self.explanation = explanation
 
     def to_dict(self) -> Dict[str, Any]:
-
         return {
             'content': self.content,
             'options': self.options,
@@ -48,7 +42,6 @@ class Question:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Question':
-
         return cls(
             content=data.get('content', ''),
             options=data.get('options'),
@@ -58,10 +51,10 @@ class Question:
 
 
 class DeepSeekClient:
+    def __init__(self):
+        api_key = os.getenv("DEEPSEEK_API_KEY")
 
-
-    def __init__(self, api_key: str):
-        self.api_key = os.getenv(DEEPSEEK_API_KEY)
+        self.api_key = api_key
         self.client = OpenAI(
             api_key=self.api_key,
             base_url="https://api.deepseek.com"
@@ -72,11 +65,9 @@ class DeepSeekClient:
 
     def generate_questions(self, subject: str, difficulty: DifficultyLevel,
                            question_type: QuestionType, count: int) -> List[Question]:
-
         prompt = self._build_prompt(subject, difficulty, question_type, count)
 
         try:
-
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -99,8 +90,6 @@ class DeepSeekClient:
                     explanation=q_data.get('explanation', '')
                 )
                 questions.append(question)
-
-
                 self._record_topic(question.content)
 
             return questions
@@ -110,7 +99,6 @@ class DeepSeekClient:
             return []
 
     def _get_system_prompt(self) -> str:
-
         return """你是一个专业的教育专家，擅长出题。你的核心要求：
 1. 每次出题必须保证题目多样化，绝不重复
 2. 覆盖不同的知识点和角度
@@ -120,11 +108,8 @@ class DeepSeekClient:
 
     def _build_prompt(self, subject: str, difficulty: DifficultyLevel,
                       question_type: QuestionType, count: int) -> str:
-
         type_requirements = self._get_type_requirements(question_type)
-
         diversity_strategy = self._get_diversity_strategy(question_type, count)
-
         avoid_topics = self._get_topics_to_avoid()
 
         prompt = f"""请生成{count}道{difficulty.value}难度的{question_type.value}，关于{subject}学科。
@@ -197,7 +182,6 @@ class DeepSeekClient:
         return requirements.get(question_type, "")
 
     def _get_diversity_strategy(self, question_type: QuestionType, count: int) -> str:
-
         strategies = {
             QuestionType.MULTIPLE_CHOICE: f"""
 请按照以下维度分散出题（{count}道题各选不同维度）：
@@ -227,7 +211,6 @@ class DeepSeekClient:
         return strategies.get(question_type, "")
 
     def _get_topics_to_avoid(self) -> str:
-
         if not self.recent_topics:
             return "（首次生成，无需要避免的主题）"
 
@@ -246,15 +229,12 @@ class DeepSeekClient:
 """
 
     def _record_topic(self, content: str):
-
         topic = content[:80] + "..." if len(content) > 80 else content
         self.recent_topics.append(topic)
-
         if len(self.recent_topics) > 20:
             self.recent_topics = self.recent_topics[-20:]
 
     def _parse_response(self, content: str, expected_count: int) -> List[Dict[str, Any]]:
-
         try:
             json_start = content.find('{')
             json_end = content.rfind('}') + 1
@@ -318,20 +298,18 @@ class DeepSeekClient:
             return question.explanation
 
     def clear_history(self):
-
         self.recent_topics = []
         logger.info("已清空题目历史记录")
 
 
 class ExerciseGenerator:
-
-    def __init__(self, api_key: str):
-        self.client = DeepSeekClient(api_key)
+    def __init__(self):
+        # 改为 deepseek_fb2 的方式：不需要传 api_key，内部自己从环境变量获取
+        self.client = DeepSeekClient()
         self.current_questions: List[Question] = []
 
     def generate(self, subject: str, difficulty: DifficultyLevel,
                  question_type: QuestionType, count: int) -> List[Question]:
-
         self.current_questions = self.client.generate_questions(
             subject, difficulty, question_type, count
         )
@@ -347,7 +325,6 @@ class ExerciseGenerator:
 
     def get_practice_session_results(self, questions: List[Question],
                                      user_answers: List[str]) -> Dict[str, Any]:
-
         results = {
             'total': len(questions),
             'correct': 0,
@@ -370,28 +347,17 @@ class ExerciseGenerator:
         return results
 
     def clear_history(self):
-
         self.client.clear_history()
 
+def create_exercise_generator() -> ExerciseGenerator:
 
-"""---------------接口-------------------"""
-def create_generator(api_key: st.secrets[DEEPSEEK_API_KEY]) -> ExerciseGenerator:
-    """
-
-    参数:
-        api_key: DeepSeek API密钥
-
-    返回:
-        ExerciseGenerator实例
-    """
-    return ExerciseGenerator(api_key)
+    return ExerciseGenerator()
 
 
 def generate_questions(generator: ExerciseGenerator, subject: str,
                        difficulty: str, question_type: str, count: int) -> Dict[str, Any]:
     """
-
-    参数:
+    参数：
         generator: 习题生成器实例
         subject: 科目名称
         difficulty: 难度等级（"EASY", "MEDIUM", "HARD"）
@@ -447,9 +413,9 @@ def generate_questions(generator: ExerciseGenerator, subject: str,
         }
 
 
-def check_answer(question: Dict[str, Any], user_answer: str) -> Dict[str, Any]:
+def check_user_answer(question: Dict[str, Any], user_answer: str) -> Dict[str, Any]:
     """
-    检查答案是否正确
+    检查用户答案
 
     参数:
         question: 题目字典
@@ -478,10 +444,10 @@ def check_answer(question: Dict[str, Any], user_answer: str) -> Dict[str, Any]:
     }
 
 
-def get_detailed_explanation(generator: ExerciseGenerator, question: Dict[str, Any],
-                             user_answer: str, is_correct: bool) -> str:
+def get_explanation(generator: ExerciseGenerator, question: Dict[str, Any],
+                    user_answer: str, is_correct: bool) -> str:
     """
-    获取详细解析
+    获取解释
 
     参数:
         generator: 习题生成器实例
@@ -532,5 +498,30 @@ def batch_check_answers(generator: ExerciseGenerator, questions: List[Dict[str, 
     question_objs = [Question.from_dict(q) for q in questions]
     results = generator.get_practice_session_results(question_objs, user_answers)
     results['accuracy'] = calculate_accuracy(results)
-
     return results
+
+
+def clear_history(generator: ExerciseGenerator) -> Dict[str, Any]:
+    """
+    清空历史记录
+
+    参数:
+        generator: 习题生成器实例
+
+    返回:
+        {
+            'success': bool,
+            'message': str
+        }
+    """
+    try:
+        generator.clear_history()
+        return {
+            'success': True,
+            'message': '历史记录已清空，下次生成将获得全新题目'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f'清空历史失败: {str(e)}'
+        }
