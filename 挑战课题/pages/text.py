@@ -1,14 +1,8 @@
 import streamlit as st
 import pymysql
 from deepseek_fb2 import create_exercise_generator, generate_questions, check_user_answer
-from utils import render_sidebar
 
 st.set_page_config(page_title="习题生成", page_icon="✍️")
-if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    st.switch_page("log_in.py")
-
-render_sidebar(active_page="profile")
-
 
 def save_record_silently(username, action_type, details):
     try:
@@ -33,7 +27,6 @@ def save_record_silently(username, action_type, details):
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             """
             cursor.execute(sql_create)
-
             sql_insert = "INSERT INTO `user_records` (`username`, `action_type`, `details`) VALUES (%s, %s, %s)"
             cursor.execute(sql_insert, (username, action_type, details))
     except Exception as e:
@@ -41,7 +34,6 @@ def save_record_silently(username, action_type, details):
     finally:
         if 'conn' in locals() and conn.open:
             conn.close()
-
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("请先登录")
@@ -60,67 +52,64 @@ question_count = st.slider(
     step=1,
     help="选择要生成的题目数量（1-20题）"
 )
+
 diff_map = {"简单": "EASY", "中等": "MEDIUM", "困难": "HARD"}
 type_map = {"选择题": "MULTIPLE_CHOICE", "填空题": "FILL_BLANK", "简答题": "SHORT_ANSWER"}
 
 if st.button("生成题目"):
     with st.spinner("正在呼叫AI生成题目..."):
         generator = create_exercise_generator()
-        raw_questions = generate_questions(
+        result = generate_questions(
             generator,
             subject=subject,
             difficulty=diff_map[difficulty],
             question_type=type_map[question_type],
             count=question_count
         )
-
-        questions = []
-        for q in raw_questions:
-            questions.append({
-                "q": q.content,
-                "a": q.answer,
-                "options": q.options,
-                "explanation": q.explanation,
-                "raw_obj": q
-            })
-
-        st.session_state.questions = questions
-
-        record_details = f"生成科目：{subject} | 难度：{difficulty} | 题型：{question_type}"
-        save_record_silently(
-            username=st.session_state.username,
-            action_type="✍️ 生成习题",
-            details=record_details
-        )
+        
+        if result['success']:
+            questions = []
+            for q_data in result['questions']:
+                questions.append({
+                    "q": q_data['content'],
+                    "a": q_data['answer'],
+                    "options": q_data.get('options', []),
+                    "explanation": q_data.get('explanation', ''),
+                    "raw_obj": q_data
+                })
+            st.session_state.questions = questions
+            record_details = f"生成科目：{subject} | 难度：{difficulty} | 题型：{question_type}"
+            save_record_silently(
+                username=st.session_state.username,
+                action_type="✍️ 生成习题",
+                details=record_details
+            )
+            st.success(f"成功生成 {len(questions)} 道题目！")
+        else:
+            st.error(f"生成失败：{result['error']}")
 
 if "questions" in st.session_state:
     st.subheader("📚 题目")
-
     for i, q in enumerate(st.session_state.questions):
         st.write(f"**{i + 1}. {q['q']}**")
-
         if q["options"]:
             for opt in q["options"]:
                 st.write(opt)
-
         st.text_input("你的答案", key=f"ans_{i}")
-
+    
     if st.button("提交答案"):
         st.write("---")
         st.subheader("批改结果：")
-
         correct_count = 0
-
         for i, q in enumerate(st.session_state.questions):
             user_ans = st.session_state.get(f"ans_{i}", "")
-            is_correct = check_user_answer(q["raw_obj"], user_ans)
-
-            if is_correct:
+            result = check_user_answer(q["raw_obj"], user_ans)
+            if result['is_correct']:
                 st.success(f"第 {i + 1} 题：回答正确！✅")
                 correct_count += 1
             else:
                 st.error(f"第 {i + 1} 题：回答错误 ❌ (你的答案: {user_ans})")
-
+                st.info(f"正确答案：{result['correct_answer']}")
         total_q = len(st.session_state.questions)
         score_details = f"提交了 {subject} 测试 ({difficulty})，共 {total_q} 题，答对 {correct_count} 题"
         save_record_silently(
@@ -128,7 +117,8 @@ if "questions" in st.session_state:
             action_type="📝 完成习题测试",
             details=score_details
         )
-
+        st.metric("得分", f"{correct_count}/{total_q}")
+    
     if st.button("查看答案"):
         st.write("---")
         for i, q in enumerate(st.session_state.questions):
