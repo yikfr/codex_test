@@ -5,9 +5,10 @@ from deepseek_fb2 import create_exercise_generator, generate_questions, check_us
 from exam import create_exam_generator, generate_exam_paper_api, export_to_markdown_api, get_statistics_api
 from utils import render_sidebar
 
-st.set_page_config(page_title="习题生成与试卷生成", page_icon="✍️")
+st.set_page_config(page_title="习题生成", page_icon="✍️")
 
 render_sidebar(active_page="text")
+
 def save_record_silently(username, action_type, details):
     try:
         conn = pymysql.connect(
@@ -156,8 +157,6 @@ with tab2:
             title = st.text_input("试卷标题", value=f"{subject_exam}单元测试卷", key="title_exam")
         with col2:
             duration = st.number_input("考试时长（分钟）", min_value=30, max_value=180, value=90, step=10, key="duration")
-            total_score = st.number_input("试卷总分", min_value=50, max_value=150, value=100, step=10,
-                                          key="total_score")
 
         st.divider()
 
@@ -166,6 +165,8 @@ with tab2:
         num_sections = st.number_input("题型数量", min_value=1, max_value=6, value=3, step=1, key="num_sections")
 
         sections = []
+        total_score_calc = 0
+
         for i in range(int(num_sections)):
             st.markdown(f"**题型 {i + 1}**")
             col1, col2, col3, col4 = st.columns(4)
@@ -186,6 +187,10 @@ with tab2:
                     key=f"exam_diff_{i}"
                 )
 
+            section_total = int(count) * int(score)
+            total_score_calc += section_total
+            st.caption(f"本题型总分：{section_total}分")
+
             sections.append({
                 "type": q_type,
                 "count": int(count),
@@ -194,32 +199,37 @@ with tab2:
             })
             st.divider()
 
+        st.info(f"**试卷总分：{total_score_calc}分**")
+
     if st.button("🚀 生成试卷", key="generate_exam", type="primary"):
-        with st.spinner("正在生成试卷，这可能需要一些时间..."):
-            try:
-                generator = create_exam_generator()
-                result = generate_exam_paper_api(
-                    generator=generator,
-                    subject=subject_exam,
-                    title=title,
-                    duration=duration,
-                    total_score=total_score,
-                    sections=sections
-                )
-
-                if result['success']:
-                    st.session_state.exam_paper = result['data']
-                    st.success("✅ 试卷生成成功！")
-
-                    save_record_silently(
-                        username=st.session_state.username,
-                        action_type="📝 生成完整试卷",
-                        details=f"科目：{subject_exam} | 标题：{title} | 总分：{total_score}分"
+        if total_score_calc == 0:
+            st.error("请至少配置一个题型")
+        else:
+            with st.spinner("正在生成试卷，这可能需要一些时间..."):
+                try:
+                    generator = create_exam_generator()
+                    result = generate_exam_paper_api(
+                        generator=generator,
+                        subject=subject_exam,
+                        title=title,
+                        duration=duration,
+                        total_score=total_score_calc,
+                        sections=sections
                     )
-                else:
-                    st.error(f"生成失败：{result['error']}")
-            except Exception as e:
-                st.error(f"发生错误：{str(e)}")
+
+                    if result['success']:
+                        st.session_state.exam_paper = result['data']
+                        st.success("✅ 试卷生成成功！")
+
+                        save_record_silently(
+                            username=st.session_state.username,
+                            action_type="📝 生成完整试卷",
+                            details=f"科目：{subject_exam} | 标题：{title} | 总分：{total_score_calc}分"
+                        )
+                    else:
+                        st.error(f"生成失败：{result['error']}")
+                except Exception as e:
+                    st.error(f"发生错误：{str(e)}")
 
     if st.session_state.exam_paper:
         st.divider()
