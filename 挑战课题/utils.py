@@ -23,7 +23,7 @@ def render_sidebar(active_page="main"):
 
         st.markdown('<div class="avatar-container">', unsafe_allow_html=True)
         st.image("https://api.dicebear.com/7.x/adventurer/svg?seed=Felix", width=80)
-        st.markdown(f"**{user['display_name']}**", unsafe_allow_html=True)
+        st.markdown(f"**{st.session.user_name}**", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
         if st.button("👤 个人主页"):
