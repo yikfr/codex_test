@@ -18,7 +18,6 @@ class DBManager:
         conn = self._get_conn()
         try:
             with conn.cursor() as cursor:
-                # role 存进 action_type，content 存进 details
                 sql = "INSERT INTO user_records (username, action_type, details) VALUES (%s, %s, %s)"
                 cursor.execute(sql, (username, f"chat_{role}", content))
         finally:
