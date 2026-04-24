@@ -18,6 +18,7 @@ def save_record_silently(username, action_type, details):
             charset="utf8mb4",
             autocommit=True,
             ssl={"ssl": {}}
+            init_command="SET time_zone='+08:00'" 
         )
         with conn.cursor() as cursor:
             sql_create = """
