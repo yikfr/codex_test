@@ -11,7 +11,7 @@ class DBManager:
             database=st.secrets["mysql"]["database"],
             charset="utf8mb4",
             autocommit=True,
-            ssl={"ssl": {}}
+            ssl={"ssl": {}},
             init_command="SET time_zone='+08:00'"
         )
 
