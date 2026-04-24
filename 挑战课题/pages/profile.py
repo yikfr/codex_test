@@ -19,6 +19,7 @@ def get_db():
         database=st.secrets["mysql"]["database"], 
         charset="utf8mb4",
         ssl={"ssl": {}}
+        init_command="SET time_zone='+08:00'" 
     )
 
 conn = get_db()
