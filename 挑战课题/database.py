@@ -12,6 +12,7 @@ class DBManager:
             charset="utf8mb4",
             autocommit=True,
             ssl={"ssl": {}}
+            init_command="SET time_zone='+08:00'"
         )
 
     def save_chat_message(self, username, role, content):
