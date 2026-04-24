@@ -7,7 +7,7 @@ from utils import render_sidebar
 
 st.set_page_config(page_title="习题生成与试卷生成", page_icon="✍️")
 
-render_sidebar()
+render_sidebar(active_page="text")
 def save_record_silently(username, action_type, details):
     try:
         conn = pymysql.connect(
