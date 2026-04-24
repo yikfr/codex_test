@@ -23,6 +23,7 @@ def get_connection():
         charset="utf8mb4",
         autocommit=True,
         ssl={"ssl": {}}
+        init_command="SET time_zone='+08:00'" 
     )
 
 
