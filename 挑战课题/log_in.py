@@ -18,9 +18,10 @@ def get_connection():
             charset="utf8mb4",
             autocommit=True,
             ssl={"ssl": {}}
+            init_command="SET time_zone='+08:00'"
         )
     except Exception as e:
-        st.error(f"数据库连接失败，请检查 Secrets 配置！详情: {e}")
+        st.error(f"数据库连接失败，详情: {e}")
         st.stop()
 
 
