@@ -43,6 +43,9 @@ def render_sidebar(active_page="main"):
         if st.button("📚 历史记录", use_container_width=True):
             st.switch_page("pages/history.py")
 
+        if st.button("📈 学情分析", use_container_width=True):
+            st.switch_page("pages/analytics.py")
+
         st.markdown("---")
 
         st.link_button("关于我们","https://www.bilibili.com/video/BV1GJ411x7h7/?spm_id_from=333.337.search-card.all.click")
