@@ -18,7 +18,7 @@ def get_db():
         password=st.secrets["mysql"]["password"],
         database=st.secrets["mysql"]["database"], 
         charset="utf8mb4",
-        ssl={"ssl": {}}
+        ssl={"ssl": {}},
         init_command="SET time_zone='+08:00'" 
     )
 
